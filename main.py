@@ -26,7 +26,14 @@ def generate_ecc_key():
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
 
-    return private_key, private_pem.decode('utf-8'), public_pem.decode('utf-8'), generation_time
+    # Extract x and y coordinates of the public key to show that it’s twice the length of the private key
+    public_numbers = public_key.public_numbers()
+    x_coordinate = public_numbers.x
+    y_coordinate = public_numbers.y
+
+    # Return both keys and the coordinates for display
+    return private_key, private_pem.decode('utf-8'), public_pem.decode(
+        'utf-8'), x_coordinate, y_coordinate, generation_time
 
 
 # Function to validate key according to NIST standards
@@ -56,10 +63,14 @@ st.title("Sinh và Kiểm Tra Khóa ECC-384")
 # Button to generate a single key
 if st.button("Sinh Khóa ECC-384"):
     st.write("Đang sinh khóa ECC-384...")
-    private_key, private_key_pem, public_key_pem, generation_time = generate_ecc_key()
+    private_key, private_key_pem, public_key_pem, x_coordinate, y_coordinate, generation_time = generate_ecc_key()
     st.success(f"Khóa đã được sinh thành công trong {generation_time:.6f} giây!")
     st.text_area("Khóa riêng ECC-384", private_key_pem, height=150)
     st.text_area("Khóa công khai ECC-384", public_key_pem, height=150)
+
+    # Display x and y coordinates of the public key to show it’s twice the size of the private key
+    st.write(f"Tọa độ x của khóa công khai (384-bit): {x_coordinate}")
+    st.write(f"Tọa độ y của khóa công khai (384-bit): {y_coordinate}")
     st.session_state['private_key'] = private_key
     st.session_state['generation_time'] = generation_time
 
